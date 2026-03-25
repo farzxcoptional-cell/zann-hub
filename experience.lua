@@ -1,27 +1,42 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "ZannHub | Blox Fruits Premium", HidePremium = false, SaveConfig = true, ConfigFolder = "ZannHubConfig"})
 
--- 1. KONFIGURASI KEY (Ganti sesukamu nanti)
-_G.CorrectKey = "edisilebaran2026"
+-- KONFIGURASI
+_G.KeyBenar = "edisilebaran2026"
+_G.KeySudahMasuk = false
 
-local Window = OrionLib:MakeWindow({
-    Name = "ZannHub | Blox Fruits Premium", 
-    HidePremium = false, 
-    SaveConfig = true, 
-    ConfigFolder = "ZannHubConfig"
+-- TAB 1: LOGIN
+local KeyTab = Window:MakeTab({Name = "Login System", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+
+KeyTab:AddTextbox({
+    Name = "Masukkan Key",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        _G.InputUser = Value
+    end      
 })
 
--- FUNGSI UNTUK MEMUNCULKAN MENU UTAMA (WAJIB DI ATAS)
-function BukaMenuUtama()
-    local FarmTab = Window:MakeTab({
-        Name = "Main Farm",
-        Icon = "rbxassetid://4483345998",
-        PremiumOnly = false
-    })
+KeyTab:AddButton({
+    Name = "Check Key",
+    Callback = function()
+        if _G.InputUser == _G.KeyBenar then
+            _G.KeySudahMasuk = true
+            OrionLib:MakeNotification({Name = "ZannHub", Content = "Key Benar! Fitur Aktif.", Time = 5})
+        else
+            OrionLib:MakeNotification({Name = "ZannHub", Content = "Key Salah!", Time = 5})
+        end
+    end
+})
 
-    FarmTab:AddToggle({
-        Name = "Auto Click (Melee/Sword)",
-        Default = false,
-        Callback = function(Value)
+-- TAB 2: FARMING (Langsung Muncul Tapi Terkunci)
+local FarmTab = Window:MakeTab({Name = "Main Farm", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+
+FarmTab:AddToggle({
+    Name = "Auto Click",
+    Default = false,
+    Callback = function(Value)
+        if _G.KeySudahMasuk then
             _G.AutoClick = Value
             while _G.AutoClick do
                 local char = game.Players.LocalPlayer.Character
@@ -30,67 +45,27 @@ function BukaMenuUtama()
                 end
                 task.wait(0.1)
             end
-        end    
-    })
-
-    FarmTab:AddToggle({
-        Name = "Auto Buso Haki",
-        Default = false,
-        Callback = function(Value)
-            _G.AutoHaki = Value
-            while _G.AutoHaki do
-                local char = game.Players.LocalPlayer.Character
-                if not char:FindFirstChild("HasBuso") then
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
-                end
-                task.wait(1)
-            end
+        else
+            OrionLib:MakeNotification({Name = "Error", Content = "Masukkan Key Dulu!", Time = 5})
         end
-    })
+    end    
+})
 
-    local PremiumTab = Window:MakeTab({
-        Name = "Super Premium",
-        Icon = "rbxassetid://4483345998",
-        PremiumOnly = false
-    })
+-- TAB 3: PREMIUM
+local PremiumTab = Window:MakeTab({Name = "Super Premium", Icon = "rbxassetid://4483345998", PremiumOnly = false})
 
-    PremiumTab:AddButton({
-        Name = "Activate Bypass & Anti-AFK",
-        Callback = function()
+PremiumTab:AddButton({
+    Name = "Anti-AFK (Bypass)",
+    Callback = function()
+        if _G.KeySudahMasuk then
             local vu = game:GetService("VirtualUser")
             game:GetService("Players").LocalPlayer.Idled:Connect(function()
                 vu:CaptureController()
                 vu:ClickButton2(Vector2.new())
             end)
-            OrionLib:MakeNotification({Name = "ZannHub", Content = "Bypass Aktif!", Time = 5})
-        end
-    })
-end
-
--- 2. TAB LOGIN (INI YANG MUNCUL PERTAMA)
-local KeyTab = Window:MakeTab({
-    Name = "Login System",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-KeyTab:AddTextbox({
-    Name = "Masukkan Key ZannHub",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(Value)
-        _G.KeyInput = Value
-    end      
-})
-
-KeyTab:AddButton({
-    Name = "Check Key",
-    Callback = function()
-        if _G.KeyInput == _G.CorrectKey then
-            OrionLib:MakeNotification({Name = "Success", Content = "Key Benar! Membuka Fitur...", Time = 5})
-            BukaMenuUtama() -- Ini yang bikin menu farm muncul
+            OrionLib:MakeNotification({Name = "Success", Content = "Anti-AFK Aktif!", Time = 5})
         else
-            OrionLib:MakeNotification({Name = "Error", Content = "Key Salah! Hubungi Zann.", Time = 5})
+            OrionLib:MakeNotification({Name = "Error", Content = "Masukkan Key Dulu!", Time = 5})
         end
     end
 })
