@@ -1,0 +1,115 @@
+-- [[ ZannHub V5 PERFECT LOCK - DELTA OPTIMIZED ]] --
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({
+    Name = "ZannHub V5 | Perfect Lock", 
+    HidePremium = true, 
+    SaveConfig = true, -- Diaktifkan agar setting tersimpan
+    IntroText = "ZannHub Precision System",
+    IntroEnabled = true
+})
+
+-- // LOCAL VARIABLES (Lebih Cepat & Ringan) // --
+local Camera = workspace.CurrentCamera
+local LocalPlayer = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+_G.Config = {
+    AimbotEnabled = false,
+    TargetPart = "Head",
+    Smoothness = 0.5,
+    FOV = 150,
+    TeamCheck = true,
+    AccessKey = "zannrivals2026"
+}
+
+-- // TAB LISENSI // --
+local AuthTab = Window:NewTab({Name = "License", Icon = "rbxassetid://4483345998"})
+
+AuthTab:AddTextbox({
+    Name = "Enter Access Key",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(v) _G.InputKey = v end
+})
+
+AuthTab:AddButton({
+    Name = "Initialize ZannHub",
+    Callback = function()
+        if _G.InputKey == _G.Config.AccessKey then
+            OrionLib:MakeNotification({Name = "ZannHub", Content = "Access Granted! Enjoy.", Time = 3})
+            
+            -- // MAIN TABS // --
+            local Combat = Window:NewTab({Name = "Aimbot Elite", Icon = "rbxassetid://4483345998"})
+            local Settings = Window:NewTab({Name = "Settings", Icon = "rbxassetid://4483345998"})
+
+            -- // COMBAT FEATURES // --
+            Combat:AddToggle({
+                Name = "Enable Perfect Lock",
+                Default = false,
+                Callback = function(v) _G.Config.AimbotEnabled = v end
+            })
+
+            Combat:AddDropdown({
+                Name = "Target Part",
+                Default = "Head",
+                Options = {"Head", "HumanoidRootPart"},
+                Callback = function(v) _G.Config.TargetPart = v end
+            })
+
+            -- // SETTINGS // --
+            Settings:AddSlider({
+                Name = "Smoothing (Precision)",
+                Min = 1, Max = 10, Default = 5,
+                Callback = function(v) _G.Config.Smoothness = v / 10 end
+            })
+
+            Settings:AddSlider({
+                Name = "FOV Size",
+                Min = 50, Max = 600, Default = 150,
+                Callback = function(v) _G.Config.FOV = v end
+            })
+
+            -- // CORE ENGINE // --
+            local function GetClosestPlayer()
+                local Target = nil
+                local MaxDist = _G.Config.FOV
+                
+                for _, p in pairs(game.Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
+                        if _G.Config.TeamCheck and p.Team == LocalPlayer.Team then continue end
+                        
+                        local Part = p.Character:FindFirstChild(_G.Config.TargetPart)
+                        if Part then
+                            local Pos, OnScreen = Camera:WorldToViewportPoint(Part.Position)
+                            if OnScreen then
+                                local MousePos = UserInputService:GetMouseLocation()
+                                local Dist = (Vector2.new(Pos.X, Pos.Y) - MousePos).Magnitude
+                                if Dist < MaxDist then
+                                    Target = Part
+                                    MaxDist = Dist
+                                end
+                            end
+                        end
+                    end
+                end
+                return Target
+            end
+
+            RunService.RenderStepped:Connect(function()
+                if _G.Config.AimbotEnabled then
+                    local Target = GetClosestPlayer()
+                    if Target then
+                        local LookAt = CFrame.new(Camera.CFrame.Position, Target.Position)
+                        Camera.CFrame = Camera.CFrame:Lerp(LookAt, _G.Config.Smoothness)
+                    end
+                end
+            end)
+
+        else
+            OrionLib:MakeNotification({Name = "Error", Content = "Key Salah!", Time = 3})
+        end
+    end
+})
+
+OrionLib:Init()
