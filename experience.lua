@@ -1,57 +1,19 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
--- 1. KONFIGURASI KEY (zannhubbb! )
-local CorrectKey = "edisilebaran2026"
+-- 1. KONFIGURASI KEY (Ganti sesukamu nanti)
+_G.CorrectKey = "edisilebaran2026"
 
 local Window = OrionLib:MakeWindow({
-    Name = "ZannHub | Blox Fruits Super Premium", 
+    Name = "ZannHub | Blox Fruits Premium", 
     HidePremium = false, 
     SaveConfig = true, 
     ConfigFolder = "ZannHubConfig"
 })
 
--- 2. TAB LOGIN (Hanya ini yang muncul pertama kali)
-local KeyTab = Window:MakeTab({
-	Name = "Login System",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
-KeyTab:AddTextbox({
-	Name = "Masukkan Key ZannHub",
-	Default = "",
-	TextDisappear = true,
-	Callback = function(Value)
-		_G.KeyInput = Value
-	end	  
-})
-
-KeyTab:AddButton({
-	Name = "Check Key",
-	Callback = function()
-		if _G.KeyInput == CorrectKey then
-			OrionLib:MakeNotification({
-				Name = "ZannHub Success",
-				Content = "Key Benar! Membuka Fitur Premium...",
-				Time = 5
-			})
-			-- MEMANGGIL SEMUA FITUR DI BAWAH
-			ZannMainFeatures()
-		else
-			OrionLib:MakeNotification({
-				Name = "ZannHub Error",
-				Content = "Key Salah!.",
-				Time = 5
-			})
-		end
-	end
-})
-
--- 3. SEMUA FITUR DIMASUKKAN KE DALAM FUNGSI INI
-function ZannMainFeatures()
-    -- Tab Farming
+-- FUNGSI UNTUK MEMUNCULKAN MENU UTAMA (WAJIB DI ATAS)
+function BukaMenuUtama()
     local FarmTab = Window:MakeTab({
-        Name = "Zann Farming",
+        Name = "Main Farm",
         Icon = "rbxassetid://4483345998",
         PremiumOnly = false
     })
@@ -60,8 +22,8 @@ function ZannMainFeatures()
         Name = "Auto Click (Melee/Sword)",
         Default = false,
         Callback = function(Value)
-            _G.ZannAutoClick = Value
-            while _G.ZannAutoClick do
+            _G.AutoClick = Value
+            while _G.AutoClick do
                 local char = game.Players.LocalPlayer.Character
                 if char:FindFirstChildOfClass("Tool") then
                     char:FindFirstChildOfClass("Tool"):Activate()
@@ -86,9 +48,8 @@ function ZannMainFeatures()
         end
     })
 
-    -- Tab Bypass & Premium
     local PremiumTab = Window:MakeTab({
-        Name = "Super Bypass",
+        Name = "Super Premium",
         Icon = "rbxassetid://4483345998",
         PremiumOnly = false
     })
@@ -101,23 +62,37 @@ function ZannMainFeatures()
                 vu:CaptureController()
                 vu:ClickButton2(Vector2.new())
             end)
-            OrionLib:MakeNotification({
-                Name = "ZannHub Premium",
-                Content = "Bypass & Anti-Kick Aktif!",
-                Time = 5
-            })
+            OrionLib:MakeNotification({Name = "ZannHub", Content = "Bypass Aktif!", Time = 5})
         end
     })
-    
-    -- Tab Info Akun (Biar harga jual naik)
-    local InfoTab = Window:MakeTab({
-        Name = "Account Info",
-        Icon = "rbxassetid://4483345998",
-        PremiumOnly = false
-    })
-    
-    InfoTab:AddLabel("Status: ZannHub Premium User")
-    InfoTab:AddLabel("Build: 2026 March Edition")
 end
+
+-- 2. TAB LOGIN (INI YANG MUNCUL PERTAMA)
+local KeyTab = Window:MakeTab({
+    Name = "Login System",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+KeyTab:AddTextbox({
+    Name = "Masukkan Key ZannHub",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        _G.KeyInput = Value
+    end      
+})
+
+KeyTab:AddButton({
+    Name = "Check Key",
+    Callback = function()
+        if _G.KeyInput == _G.CorrectKey then
+            OrionLib:MakeNotification({Name = "Success", Content = "Key Benar! Membuka Fitur...", Time = 5})
+            BukaMenuUtama() -- Ini yang bikin menu farm muncul
+        else
+            OrionLib:MakeNotification({Name = "Error", Content = "Key Salah! Hubungi Zann.", Time = 5})
+        end
+    end
+})
 
 OrionLib:Init()
